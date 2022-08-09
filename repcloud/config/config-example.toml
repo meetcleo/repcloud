@@ -4,7 +4,7 @@ pid_dir = "~/.repcloud/pid"
 [logging]
 #where to store the logs
 log_dir = "~/.repcloud/logs"
-#log level 
+#log level
 log_level = "debug"
 #log destination file or console
 log_dest = "file"
@@ -16,7 +16,7 @@ log_days_keep = "4"
 enable_email = false
 
 [notifier.email]
-#mail from 
+#mail from
 mailfrom= "foo@foo.bar"
 #list of emails to send the notify message
 mailto = ["foo@example.bar"]
@@ -25,8 +25,8 @@ smtp_server = "smtp.foo.bar"
 #smtp port
 smtp_port = "587"
 # ssl may be none, starttls
-smtp_ssl = "starttls" 
-#smtp login username 
+smtp_ssl = "starttls"
+#smtp login username
 smtp_username = "foo@foo.bar"
 #smtp login password
 smtp_password = "foobar"
