@@ -1399,67 +1399,13 @@ Views to get dependencies adapted from pgadmin3's query to get referenced object
 
 CREATE OR REPLACE VIEW v_serials
 AS
-SELECT
-	*
-FROM
-(
-	SELECT DISTINCT
-	 	dep.refobjid,
-		cl.relkind,
-		(SELECT attname FROM pg_catalog.pg_attribute WHERE (attrelid,attnum)=(SELECT adrelid,adnum FROM pg_attrdef WHERE oid=depref.objid)) AS secatt,
-		COALESCE(coc.relname, clrw.relname) AS ownertable,
-		CASE
-			WHEN
-					cl.relname IS NOT NULL
-				AND att.attname IS NOT NULL
-			THEN
-				cl.relname || '.' || att.attname
-			ELSE
-				COALESCE(cl.relname, co.conname, pr.proname, tg.tgname, ty.typname, la.lanname, rw.rulename, ns.nspname)
-		END AS refname,
-		COALESCE(nsc.nspname, nso.nspname, nsp.nspname, nst.nspname, nsrw.nspname) AS nspname
-	FROM pg_depend dep
-		LEFT JOIN pg_class cl
-			ON dep.objid=cl.oid
-		LEFT JOIN pg_attribute att
-			ON dep.objid=att.attrelid AND dep.objsubid=att.attnum
-		LEFT JOIN pg_namespace nsc
-			ON cl.relnamespace=nsc.oid
-		LEFT JOIN pg_proc pr
-			ON dep.objid=pr.oid
-		LEFT JOIN pg_namespace nsp
-			ON pr.pronamespace=nsp.oid
-		LEFT JOIN pg_trigger tg
-			ON dep.objid=tg.oid
-		LEFT JOIN pg_type ty
-			ON dep.objid=ty.oid
-		LEFT JOIN pg_namespace nst
-			ON ty.typnamespace=nst.oid
-		LEFT JOIN pg_constraint co
-			ON dep.objid=co.oid
-		LEFT JOIN pg_class coc
-			ON co.conrelid=coc.oid
-		LEFT JOIN pg_namespace nso
-			ON co.connamespace=nso.oid
-		LEFT JOIN pg_rewrite rw
-			ON dep.objid=rw.oid
-		LEFT JOIN pg_class clrw
-			ON clrw.oid=rw.ev_class
-		LEFT JOIN pg_namespace nsrw
-			ON clrw.relnamespace=nsrw.oid
-		LEFT JOIN pg_language la
-			ON dep.objid=la.oid
-		LEFT JOIN pg_namespace ns
-			ON dep.objid=ns.oid
-		LEFT JOIN pg_attrdef ad
-			ON ad.oid=dep.objid
-		INNER JOIN pg_catalog.pg_depend depref
-			ON dep.objid=depref.refobjid
-
-)ser
-WHERE
-		relkind='S'
-	AND secatt IS NOT NULL
+  select d.refobjid, s.relname as refname, n.nspname as nspname, t.relname as ownertable, a.attname as secatt
+from pg_class s
+  join pg_depend d on d.objid=s.oid and d.classid='pg_class'::regclass and d.refclassid='pg_class'::regclass
+  join pg_class t on t.oid=d.refobjid
+  join pg_namespace n on n.oid=t.relnamespace
+  join pg_attribute a on a.attrelid=t.oid and a.attnum=d.refobjsubid
+where s.relkind='S' and d.deptype='a'
 ;
 
 
