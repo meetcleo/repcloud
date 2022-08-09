@@ -141,6 +141,18 @@ The table's configuration file provides both examples.
 	#filtering data, based on the key currently only jsonb is supported
 	bar.remove_keys = [ "key1" ]
 
+Convert columns to bigint
+++++++++++++++++++++++++++++++++
+
+In the table's configuration file it's possible to specify whether to convert columns to bigint type during repack.
+This is useful if you find you're about to run out of integers for a sequence-generated column.
+
+::
+
+	[public.foobar]
+	# converts the specified columns to bigint during the repack
+	bigint_cols = ['id']
+
 Example files
 ++++++++++++++++++++++++++++++++
 

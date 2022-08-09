@@ -1,17 +1,17 @@
 #table configuration example
 # storage data. currently only fillfactor is allowed
 
-#set the fillfactor for all the tables 
+#set the fillfactor for all the tables
 [storage]
-fillfactor = 100 
+fillfactor = 100
 
 #sets the fillfactor for all the tables in the schema foo
 [storage.foo]
-fillfactor = 80 
+fillfactor = 80
 
 #set the fillfactor for the table foo.bar
 [storage.foo.bar]
-fillfactor = 30 
+fillfactor = 30
 
 
 [public.foobar]
@@ -22,3 +22,5 @@ foo.cleanup_nulls = true
 #filtering data, based on the key currently only jsonb is supported
 bar.remove_keys = [ "key1" ]
 
+# converts the specified columns to bigint during the repack
+bigint_cols = ['id']

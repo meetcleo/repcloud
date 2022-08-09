@@ -233,6 +233,25 @@ class pg_engine(object):
 
 		return fillfactor
 
+	def __get_table_bigint_cols(self, table):
+		"""
+		Returns the table's bigint_cols if specified.
+		"""
+		bigint_cols = []
+		table_filter = None
+		try:
+			table_filter=self.__tables_config[table[1]][table[2]]
+			self.logger.log_message('Found filter definition for table %s.%s' % (table[1], table[2],  ), 'debug')
+		except:
+			self.logger.log_message('There is no filter definition for table %s.%s' % (table[1], table[2],  ), 'debug')
+
+		if table_filter:
+			bigint_cols_found = table_filter['bigint_cols']
+			self.logger.log_message('Found bigint_cols for %s table %s.%s' % (bigint_cols_found, table[1], table[2],  ), 'debug')
+			bigint_cols = bigint_cols_found
+
+		return bigint_cols
+
 	def __get_foreign_keys(self, db_handler):
 		"""
 		Updates the foreign keys in the table
@@ -315,10 +334,11 @@ class pg_engine(object):
 			The method creates a new table in the sch_repcloud schema using the function fn_create_repack_table
 		"""
 		fillfactor = self.__get_table_fillfactor(table)
-		sql_create_new = """SELECT sch_repcloud.fn_create_repack_table(%s,%s,%s); """
+		bigint_columns = self.__get_table_bigint_cols(table)
+		sql_create_new = """SELECT sch_repcloud.fn_create_repack_table(%s,%s,%s,%s); """
 		sql_create_log = """SELECT sch_repcloud.fn_create_log_table(%s,%s); """
 		self.logger.log_message('Creating a copy of table %s. ' % (table[0],  ), 'info')
-		db_handler["cursor"].execute(sql_create_new,  (table[1], table[2], fillfactor, ))
+		db_handler["cursor"].execute(sql_create_new,  (table[1], table[2], fillfactor, bigint_columns, ))
 		tab_create = db_handler["cursor"].fetchone()
 		self.__id_table = tab_create[0]
 		self.logger.log_message('Creating the log table for %s. ' % (table[0],  ), 'info')
@@ -1140,6 +1160,7 @@ class pg_engine(object):
 			The method executes the preparation for repack for each table in self.tab_list
 			self.__repack_list = [ 'create table','copy', 'create pkey','create indices', 'replay','swap tables','swap aborted','validate','complete' ]
 		"""
+		self.__fetch_config(con)
 		db_handler = self.__connect_db(self.connections[con])
 		tables_repacked=[]
 		for table in self.__tab_list:
@@ -1254,9 +1275,9 @@ class pg_engine(object):
 		self.__disconnect_db(db_handler)
 		self.tables_repacked = tables_repacked
 
-	def __repack_loop(self, con, action='repack'):
+	def __fetch_config(self, con):
 		"""
-		The method loops trough the tables available for the connection
+		The method assigns the configurations
 		"""
 		if con in self.tables_config:
 			self.__tables_config = self.tables_config[con]
@@ -1269,6 +1290,11 @@ class pg_engine(object):
 			self.__tables_config = None
 			self.__storage_params = None
 
+	def __repack_loop(self, con, action='repack'):
+		"""
+		The method loops trough the tables available for the connection
+		"""
+		self.__fetch_config(con)
 		self.__get_repack_tables(con)
 		if action == 'repack':
 			self.__repack_tables(con)

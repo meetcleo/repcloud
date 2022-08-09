@@ -271,7 +271,7 @@ BEGIN
 				sch_repnew.%I
 			WHERE i_action_id = ANY(%L)
 			;
-				
+
 
 		',
 		v_t_tab_data[1],
@@ -314,7 +314,7 @@ BEGIN
 	);
 	RAISE DEBUG 'REMOVING THE REPLAYED ROWS';
 	EXECUTE v_t_sql_delete;
-	
+
 	RAISE DEBUG 'CHECKING IF WE STILL HAVE ROWS TO REPLAY';
 	v_t_sql_act:=format('
 		SELECT
@@ -407,13 +407,14 @@ $BODY$
 LANGUAGE plpgsql
 ;
 
-CREATE OR REPLACE FUNCTION sch_repcloud.fn_create_repack_table(text,text,integer)
+CREATE OR REPLACE FUNCTION sch_repcloud.fn_create_repack_table(text,text,integer,text[])
 RETURNS bigint as
 $BODY$
 DECLARE
 	p_t_schema			ALIAS FOR $1;
 	p_t_table			ALIAS FOR $2;
 	p_i_fillfactor		ALIAS FOR $3;
+	p_t_bigint_cols		ALIAS FOR $4;
 	v_new_table			character varying(64);
 	v_log_table	character varying(64);
 	v_i_id_table		bigint;
@@ -423,6 +424,7 @@ DECLARE
 	v_oid_new_table		oid;
 	v_r_sequences		record;
 	v_t_seq_name		text[];
+	p_t_bigint_col	character varying(64);
 BEGIN
 	v_oid_old_table:=format('%I.%I',p_t_schema,p_t_table)::regclass::oid;
 	v_new_table:=format('%I',p_t_table::character varying(30)||'_'||v_oid_old_table::text);
@@ -444,6 +446,14 @@ BEGIN
 		p_i_fillfactor);
 		EXECUTE t_sql_alter ;
 	END IF;
+
+	FOREACH p_t_bigint_col IN ARRAY p_t_bigint_cols
+	LOOP
+		t_sql_alter=format('ALTER TABLE sch_repnew.%I ALTER COLUMN %I TYPE bigint;',
+		v_new_table,
+		p_t_bigint_col);
+		EXECUTE t_sql_alter ;
+	END LOOP;
 
 	v_t_seq_name:=(
 		SELECT
