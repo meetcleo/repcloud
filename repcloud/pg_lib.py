@@ -247,8 +247,9 @@ class pg_engine(object):
 
 		if table_filter:
 			bigint_cols_found = table_filter['bigint_cols']
-			self.logger.log_message('Found bigint_cols for %s table %s.%s' % (bigint_cols_found, table[1], table[2],  ), 'debug')
-			bigint_cols = bigint_cols_found
+			if bigint_cols_found:
+				self.logger.log_message('Found bigint_cols for %s table %s.%s' % (bigint_cols_found, table[1], table[2],  ), 'debug')
+				bigint_cols = bigint_cols_found
 
 		return bigint_cols
 
