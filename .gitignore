@@ -11,3 +11,11 @@ cur/
 tmp/
 __pycache__/
 *.DS_Store
+/build
+/dist
+/repcloud.egg-info
+/repcloud/.Python
+/repcloud/.gitignore
+/repcloud/bin/
+/repcloud/lib/
+/repcloud/pyvenv.cfg

@@ -200,6 +200,27 @@ With kill_query the blocking queries will be terminated with **pg_terminate_back
 
 The configuration's example file have the parameter set to nothing.
 
+Installation
+............................
+
+- Install virtualenv, and create an environment for repcloud, e.g.: `virtualenv -p /usr/bin/python3 repcloud`
+- Build and install repcloud:
+```
+cd ~/repcloud
+source repcloud/bin/activate
+python setup.py build
+python setup.py install
+```
+- You can then start calling repcloud with the `rpcl` command
+
+Impact on replication
+............................
+
+If you've got logical replication running on your target DB, there are a couple of things you might need to take under consideration:
+
+1. DMS. If you use AWS DMS, it will interpret `ALTER TABLE ONLY ...` commands run by repcloud as altering a table called `public.only`. The fix is to put in a mapping like: `Source table name is like 'only', exclude`
+2. If you run a custom replication tool, repcloud defines it's own type: `sch_repcloud.ty_repack_step` - you might need to tweak your replication tool to be able to handle this additional type.
+
 ::
 
 	deadlock_resolution = "nothing"
