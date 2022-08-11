@@ -33,7 +33,7 @@ Views and materialised views referencing the repacked table are dropped and crea
 
 Acknowledgement
 ...................................
-Coding repcloud has been possible thanks to the sponsorhip of `Cleo AI. https://www.meetcleo.com/ <https://www.meetcleo.com/>`_ 
+Coding repcloud has been possible thanks to the sponsorhip of `Cleo AI. https://www.meetcleo.com/ <https://www.meetcleo.com/>`_
 
 .. image:: https://raw.githubusercontent.com/the4thdoctor/repcloud/master/images/cleo_logo.png
         :target: https://www.meetcleo.com/
@@ -85,8 +85,8 @@ The tool supports the **fillfactor** setup for the repacked tables. This is poss
 
 The file describing the storage settings must be named after the configuration and the connection which the settings apply in the form *<configuration>_<connection>.toml*.
 
-For example, if we are using the configuration *default.toml* where there is the connection *repack* the table configuration file's name should be 
-*default_repack.toml* 
+For example, if we are using the configuration *default.toml* where there is the connection *repack* the table configuration file's name should be
+*default_repack.toml*
 
 If the table settings file is not present then the default values are used.
 
@@ -111,18 +111,18 @@ The example configuration file sets the fillfactor:
 
     #table configuration example
     # storage data. currently only fillfactor is allowed
-    
-    #set the fillfactor for all the tables 
+
+    #set the fillfactor for all the tables
     [storage]
-    fillfactor = 100 
-    
+    fillfactor = 100
+
     #sets the fillfactor for all the tables in the schema foo
     [storage.foo]
-    fillfactor = 80 
-    
+    fillfactor = 80
+
     #set the fillfactor for the table foo.bar
     [storage.foo.bar]
-    fillfactor = 30 
+    fillfactor = 30
 
 Cleanup json/jsonb
 ++++++++++++++++++++++++++++++++
@@ -140,6 +140,18 @@ The table's configuration file provides both examples.
 
 	#filtering data, based on the key currently only jsonb is supported
 	bar.remove_keys = [ "key1" ]
+
+Convert columns to bigint
+++++++++++++++++++++++++++++++++
+
+In the table's configuration file it's possible to specify whether to convert columns to bigint type during repack.
+This is useful if you find you're about to run out of integers for a sequence-generated column.
+
+::
+
+	[public.foobar]
+	# converts the specified columns to bigint during the repack
+	bigint_cols = ['id']
 
 Example files
 ++++++++++++++++++++++++++++++++
@@ -183,7 +195,7 @@ If it's not possible the swap attempt aborts.
 In case of deadlock, it's possible to specify the resolution strategy. with connection's parameter **deadlock_resolution**.
 The possible values are *nothing, cancel_query, kill_query*.
 
-With **nothing** the deadlock resolution will be managed by the database. With **cancel_query** the blocking queries will be cancelled with **pg_cancel_backend**. 
+With **nothing** the deadlock resolution will be managed by the database. With **cancel_query** the blocking queries will be cancelled with **pg_cancel_backend**.
 With kill_query the blocking queries will be terminated with **pg_terminate_backend**.
 
 The configuration's example file have the parameter set to nothing.
